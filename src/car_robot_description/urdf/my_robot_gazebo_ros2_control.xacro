@@ -1,0 +1,65 @@
+<?xml version="1.0"?>
+<robot name="my_robot" xmlns:xacro="http://www.ros.org/wiki/xacro">
+
+    <xacro:include filename="common_properties.xacro" />
+    <xacro:include filename="car_base.xacro" />
+    <xacro:include filename="lidar.xacro" />
+    <!-- <xacro:include filename="arm.xacro"/> -->
+
+    <!-- <joint name="mobile_base_arm_joint" type="fixed">
+        <parent link="base_link" />
+        <child link="arm_base_link" />
+        <origin xyz="${base_length / 4.0} 0 ${base_height}" rpy="0 0 0" />
+    </joint> -->
+
+
+
+    <joint name="base_lidar_joint" type="fixed">
+        <parent link="base_link"/>
+        <child link="lidar_link"/>
+        <origin xyz="0 0 ${base_height}" rpy="0 0 0"/>
+    </joint>
+
+
+    <ros2_control name="MyRobot" type="system">
+        <hardware>
+            <plugin>gz_ros2_control/GazeboSimSystem</plugin>
+        </hardware>
+        <joint name="base_fl_wheel_joint">
+            <command_interface name="velocity" />
+            <state_interface name="velocity" />
+            <state_interface name="position" />
+        </joint>
+
+        <joint name="base_fr_wheel_joint">
+            <command_interface name="velocity" />
+            <state_interface name="velocity" />
+            <state_interface name="position" />
+        </joint>
+
+        <joint name="base_rl_wheel_joint">
+            <command_interface name="velocity" />
+            <state_interface name="velocity" />
+            <state_interface name="position" />
+        </joint>
+
+        <joint name="base_rr_wheel_joint">
+            <command_interface name="velocity" />
+            <state_interface name="velocity" />
+            <state_interface name="position" />
+        </joint>
+    </ros2_control>
+
+    <gazebo>
+        <!-- Actuators & Wheel Control -->
+        <plugin filename="gz_ros2_control-system" name="gz_ros2_control::GazeboSimROS2ControlPlugin">
+            <parameters>$(find my_project_bringup)/config/my_robot_controller.yaml</parameters>
+        </plugin>
+
+        <!-- GPU LiDAR & Camera Rendering Engine -->
+        <plugin filename="gz-sim-sensors-system" name="gz::sim::systems::Sensors">
+            <render_engine>ogre2</render_engine>
+        </plugin>
+    </gazebo>
+
+</robot>

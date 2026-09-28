@@ -1,0 +1,23 @@
+<?xml version="1.0"?>
+<robot name="my_robot" xmlns:xacro="http://www.ros.org/wiki/xacro">
+
+    <xacro:include filename="common_properties.xacro"/>
+    <xacro:include filename="car_base.xacro"/>
+    <xacro:include filename="car_base.ros2_control.xacro"/>
+    <xacro:include filename="lidar.xacro"/>
+    <!-- <xacro:include filename="arm.xacro"/>
+    <xacro:include filename="arm.ros2_control.xacro"/> -->
+
+    <joint name="base_lidar_joint" type="fixed">
+        <parent link="base_link"/>
+        <child link="lidar_link"/>
+        <origin xyz="0 0 ${base_height}" rpy="0 0 0"/>
+    </joint>
+
+    <!-- <joint name="mobile_base_arm_joint" type="fixed">
+        <parent link="base_link" />
+        <child link="arm_base_link" />
+        <origin xyz="${base_length / 4.0} 0 ${base_height}" rpy="0 0 0" />
+    </joint> -->
+
+</robot>

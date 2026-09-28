@@ -1,0 +1,52 @@
+<?xml version="1.0"?>
+<robot xmlns:xacro="http://www.ros.org/wiki/xacro">
+
+    <xacro:property name="lidar_length" value="0.1" />
+    <xacro:property name="lidar_width" value="0.06" />
+    <xacro:property name="lidar_height" value="0.05" />
+
+    <link name="lidar_link">
+        <visual>
+            <geometry>
+                <mesh filename="package://car_robot_description/meshes/lds.stl" scale="0.001 0.001 0.001"/>
+            </geometry>
+            <origin xyz="0 0 ${lidar_height/1.7}" rpy="0 0 0" />
+            <material name="grey" />
+        </visual>
+        <collision>
+            <geometry>
+                <box size="${lidar_length} ${lidar_width} ${lidar_height}"/>
+            </geometry>
+        </collision>
+        <xacro:box_inertia m="0.13" x="${lidar_length}" y="${lidar_width}" z="${lidar_height}" 
+                            o_xyz="0 0 0" o_rpy="0 0 0" />
+    </link>
+
+    <gazebo reference="lidar_link">
+        <sensor name="lidar" type="gpu_lidar">
+
+            <!-- Force Gazebo to publish the clean URDF frame name -->
+            <gz_frame_id>lidar_link</gz_frame_id>
+            
+            <topic>/scan</topic>
+            <update_rate>3</update_rate>
+            <always_on>true</always_on>
+            <visualize>true</visualize>
+            <lidar>
+                <scan>
+                    <horizontal>
+                        <samples>360</samples>
+                        <resolution>1</resolution>
+                        <min_angle>-3.14159</min_angle>
+                        <max_angle>3.14159</max_angle>
+                    </horizontal>
+                </scan>
+                <range>
+                    <min>0.1</min>
+                    <max>8.0</max>
+                    <resolution>0.01</resolution>
+                </range>
+            </lidar>
+        </sensor>
+    </gazebo>
+</robot>
