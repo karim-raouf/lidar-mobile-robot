@@ -16,10 +16,15 @@ controller_manager:
 diff_drive_controller:
   ros__parameters:
     left_wheel_names: ["base_fl_wheel_joint", "base_rl_wheel_joint"]
-    right_wheel_names: ["base_fr_wheel_joint", base_rr_wheel_joint]
+    right_wheel_names: ["base_fr_wheel_joint", "base_rr_wheel_joint"]
 
+    # True physical measurements
     wheel_separation: 0.175
     wheel_radius: 0.035
+
+    # Calibration multipliers (keep physical measurements above untouched)
+    wheel_separation_multiplier: 1.0   # Tune this if robot turns more/less in Gazebo than RViz (e.g. 1.1 - 1.25 for 4-wheel skid steer)
+    wheel_radius_multiplier: 1.0       # Tune this if straight distance differs slightly (e.g. 0.98 - 1.02)
 
     use_stamped_vel: true
     odom_frame_id: "odom"
@@ -34,9 +39,13 @@ diff_drive_controller:
 
     linear.x.min_velocity: -2.0
     linear.x.max_velocity: 2.0
+    linear.x.min_acceleration: -1.0
+    linear.x.max_acceleration: 1.0
 
     angular.z.min_velocity: -2.0
-    angular.z.max_velocity : 2.0
+    angular.z.max_velocity: 2.0
+    angular.z.min_acceleration: -2.0
+    angular.z.max_acceleration: 2.0
   
 # arm_joints_controller:
 #   ros__parameters:
