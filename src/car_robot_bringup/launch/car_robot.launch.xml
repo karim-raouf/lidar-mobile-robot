@@ -11,7 +11,7 @@
     </node>
 
     <node pkg="controller_manager" exec="ros2_control_node" >
-        <param from="$(find-pkg-share my_project_bringup)/config/my_robot_controller.yaml" />
+        <param from="$(find-pkg-share car_robot_bringup)/config/my_robot_controller.yaml" />
     </node>
 
     <node pkg="controller_manager" exec="spawner" args="joint_state_broadcaster" />

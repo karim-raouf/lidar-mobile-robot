@@ -3,9 +3,9 @@
         value="$(find-pkg-prefix car_robot_description)/share" />
         
     <let name="urdf_path" 
-         value="$(find-pkg-share car_robot_description)/urdf/my_robot_gazebo_ros2_control.xacro" />
-    <let name="gazebo_config_path"
-         value="$(find-pkg-share my_project_bringup)/config/gazebo_bridge.yaml" />
+         value="$(find-pkg-share car_robot_description)/urdf/car_robot_gazebo_ros2_control.xacro" />
+        <let name="gazebo_config_path"
+            value="$(find-pkg-share car_robot_bringup)/config/gazebo_bridge.yaml" />
     <let name="rviz_config_path"
          value="$(find-pkg-share car_robot_description)/rviz/config.rviz" />
 
