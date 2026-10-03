@@ -6,7 +6,7 @@
          value="$(find-pkg-share car_robot_description)/rviz/config.rviz" />
 
     <node pkg="robot_state_publisher" exec="robot_state_publisher">
-        <param name="robot_description"
+        <param name="robot_description" type="str"
                value="$(command 'xacro $(var urdf_path)')" />
     </node>
 

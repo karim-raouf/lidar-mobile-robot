@@ -92,6 +92,7 @@ bool SerialDriver::open(
   tcflush(fd_, TCIOFLUSH);
   rx_buffer_.clear();
   wheels_ = {};
+  last_ignored_line_.clear();
 
   RCLCPP_INFO(logger(), "Serial port %s opened @ %d baud", port.c_str(), baud_rate);
   return true;
@@ -191,6 +192,7 @@ bool SerialDriver::handleLine(std::string_view line)
   }
 
   if (!line.starts_with("S ")) {
+    last_ignored_line_ = line;
     RCLCPP_DEBUG(logger(), "ESP32: %.*s", static_cast<int>(line.size()), line.data());
     return false;
   }
@@ -202,6 +204,7 @@ bool SerialDriver::handleLine(std::string_view line)
     std::sscanf(text.c_str(), "S %lf %lf %lf %lf", &v[0], &v[1], &v[2], &v[3]) == 4 &&
     std::ranges::all_of(v, [](double x) {return std::isfinite(x);});
   if (!ok) {
+    last_ignored_line_ = text;
     RCLCPP_DEBUG(logger(), "Malformed state line: '%s'", text.c_str());
     return false;
   }

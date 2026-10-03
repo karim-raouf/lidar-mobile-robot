@@ -59,6 +59,9 @@ public:
   /// Most recent state received, indexed by kLeft / kRight.
   [[nodiscard]] const std::array<WheelState, 2> & wheels() const {return wheels_;}
 
+  /// Last non-empty line that was not a valid state message (for diagnostics).
+  [[nodiscard]] const std::string & lastIgnoredLine() const {return last_ignored_line_;}
+
 private:
   bool writeLine(std::string_view line);
   bool handleLine(std::string_view line);  // true if the line was a valid state message
@@ -66,6 +69,7 @@ private:
   int fd_{-1};
   std::string rx_buffer_;
   std::array<WheelState, 2> wheels_{};
+  std::string last_ignored_line_;
 };
 
 }  // namespace car_base_hardware

@@ -25,6 +25,7 @@ namespace car_base_hardware
  *   serial_port       serial device                      (default /dev/ttyUSB0)
  *   baud_rate         serial speed                       (default 115200)
  *   timeout_ms        max time without state from ESP32  (default 500)
+ *   first_state_timeout_ms  max wait for the first state on activation (default 3000)
  *   startup_delay_ms  wait after opening the port        (default 2000)
  *   kp, ki, kd        velocity PID gains; sent to the ESP32 on activation
  *                     only if all three are given
@@ -55,6 +56,7 @@ private:
   std::string port_{"/dev/ttyUSB0"};
   int baud_rate_{115200};
   std::chrono::milliseconds timeout_{500};
+  std::chrono::milliseconds first_state_timeout_{3000};
   std::chrono::milliseconds startup_delay_{2000};
   bool send_pid_{false};
   double kp_{0.0};

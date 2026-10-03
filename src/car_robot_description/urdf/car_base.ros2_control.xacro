@@ -5,11 +5,11 @@
         <hardware>
             <!-- <plugin>mock_components/GenericSystem</plugin> -->
             <plugin>car_base_hardware/CarBaseHardwareInterface</plugin>
-            <param name="serial_port">/dev/ttyUSB0</param>
+            <param name="serial_port">/dev/ttyUSB1</param>
             <param name="baud_rate">115200</param>
             <param name="timeout_ms">500</param>
             <param name="startup_delay_ms">2000</param>
-            <!-- Optional: velocity PID gains sent to the ESP32 on activation -->
+            <!-- Optional - velocity PID gains sent to the ESP32 on activation -->
             <!-- <param name="kp">1.0</param>
             <param name="ki">0.0</param>
             <param name="kd">0.0</param> -->

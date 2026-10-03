@@ -3,6 +3,7 @@
 #include <algorithm>
 #include <optional>
 #include <stdexcept>
+#include <thread>
 
 #include "hardware_interface/types/hardware_interface_type_values.hpp"
 #include "rclcpp/rclcpp.hpp"
@@ -71,6 +72,9 @@ CallbackReturn CarBaseHardwareInterface::on_init(
     if (const auto v = findParam(info_, "timeout_ms")) {
       timeout_ = std::chrono::milliseconds{std::stoi(*v)};
     }
+    if (const auto v = findParam(info_, "first_state_timeout_ms")) {
+      first_state_timeout_ = std::chrono::milliseconds{std::stoi(*v)};
+    }
     if (const auto v = findParam(info_, "startup_delay_ms")) {
       startup_delay_ = std::chrono::milliseconds{std::stoi(*v)};
     }
@@ -124,6 +128,27 @@ CallbackReturn CarBaseHardwareInterface::on_activate(const rclcpp_lifecycle::Sta
     return CallbackReturn::ERROR;
   }
 
+  // Don't start the read() timeout until the ESP32 has actually started streaming.
+  const auto deadline = std::chrono::steady_clock::now() + first_state_timeout_;
+  while (true) {
+    const auto received = driver_.poll();
+    if (!received) {
+      return CallbackReturn::ERROR;
+    }
+    if (*received > 0) {
+      break;
+    }
+    if (std::chrono::steady_clock::now() > deadline) {
+      const auto & last = driver_.lastIgnoredLine();
+      RCLCPP_ERROR(
+        get_logger(), "No state message ('S ...') from ESP32 within %lld ms on %s. Last line "
+        "received: %s", static_cast<long long>(first_state_timeout_.count()), port_.c_str(),
+        last.empty() ? "<nothing>" : ("'" + last + "'").c_str());
+      return CallbackReturn::ERROR;
+    }
+    std::this_thread::sleep_for(std::chrono::milliseconds{10});
+  }
+
   last_rx_ = std::chrono::steady_clock::now();
   RCLCPP_INFO(get_logger(), "Connected to ESP32 on %s", port_.c_str());
   return CallbackReturn::SUCCESS;
@@ -146,9 +171,11 @@ return_type CarBaseHardwareInterface::read(const rclcpp::Time &, const rclcpp::D
   if (*received > 0) {
     last_rx_ = now;
   } else if (now - last_rx_ > timeout_) {
+    const auto & last = driver_.lastIgnoredLine();
     RCLCPP_ERROR(
-      get_logger(), "No state from ESP32 for more than %lld ms",
-      static_cast<long long>(timeout_.count()));
+      get_logger(), "No state from ESP32 for more than %lld ms. Last line received: %s",
+      static_cast<long long>(timeout_.count()),
+      last.empty() ? "<nothing>" : ("'" + last + "'").c_str());
     return return_type::ERROR;
   }
 
