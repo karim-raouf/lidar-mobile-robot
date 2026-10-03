@@ -1,65 +1,70 @@
 #pragma once
 
-#include <hardware_interface/system_interface.hpp>
-#include "car_robot_hardware/motor_driver.hpp"
+#include <chrono>
+#include <string>
 
+#include "hardware_interface/system_interface.hpp"
+#include "hardware_interface/types/hardware_interface_return_values.hpp"
+#include "rclcpp/duration.hpp"
+#include "rclcpp/time.hpp"
+#include "rclcpp_lifecycle/state.hpp"
 
-namespace car_base_hardware {
+#include "car_robot_hardware/serial_driver.hpp"
 
-class CarBaseHardwareInterface: public hardware_interface::SystemInterface
+namespace car_base_hardware
 {
-    public:
-        hardware_interface::CallbackReturn 
-            on_activate(const rclcpp_lifecycle::State &previous_state) override;
-        hardware_interface::CallbackReturn 
-            on_deactivate(const rclcpp_lifecycle::State &previous_state) override;
-        
 
-        // SystemInterface override
-        hardware_interface::CallbackReturn 
-            on_init(const hardware_interface::HardwareComponentInterfaceParams &params) override;
+/**
+ * ros2_control SystemInterface for the 2-wheel differential base driven by an ESP32.
+ *
+ * Joints (in URDF order): [0] = left wheel, [1] = right wheel
+ *   command interface : velocity [rad/s]
+ *   state interfaces  : position [rad], velocity [rad/s]
+ *
+ * Hardware parameters (all optional):
+ *   serial_port       serial device                      (default /dev/ttyUSB0)
+ *   baud_rate         serial speed                       (default 115200)
+ *   timeout_ms        max time without state from ESP32  (default 500)
+ *   startup_delay_ms  wait after opening the port        (default 2000)
+ *   kp, ki, kd        velocity PID gains; sent to the ESP32 on activation
+ *                     only if all three are given
+ */
+class CarBaseHardwareInterface : public hardware_interface::SystemInterface
+{
+public:
+  hardware_interface::CallbackReturn on_init(
+    const hardware_interface::HardwareComponentInterfaceParams & params) override;
+  hardware_interface::CallbackReturn on_configure(
+    const rclcpp_lifecycle::State & previous_state) override;
+  hardware_interface::CallbackReturn on_cleanup(
+    const rclcpp_lifecycle::State & previous_state) override;
+  hardware_interface::CallbackReturn on_activate(
+    const rclcpp_lifecycle::State & previous_state) override;
+  hardware_interface::CallbackReturn on_deactivate(
+    const rclcpp_lifecycle::State & previous_state) override;
 
-        std::vector<hardware_interface::StateInterface> 
-            export_state_interfaces() override;
+  hardware_interface::return_type read(
+    const rclcpp::Time & time, const rclcpp::Duration & period) override;
+  hardware_interface::return_type write(
+    const rclcpp::Time & time, const rclcpp::Duration & period) override;
 
-        std::vector<hardware_interface::CommandInterface> 
-            export_command_interfaces() override;
+private:
+  SerialDriver driver_;
 
-        hardware_interface::return_type
-            read(const rclcpp::Time &time, const rclcpp::Duration &period) override;
+  // Parameters
+  std::string port_{"/dev/ttyUSB0"};
+  int baud_rate_{115200};
+  std::chrono::milliseconds timeout_{500};
+  std::chrono::milliseconds startup_delay_{2000};
+  bool send_pid_{false};
+  double kp_{0.0};
+  double ki_{0.0};
+  double kd_{0.0};
 
-        hardware_interface::return_type
-            write(const rclcpp::Time &time, const rclcpp::Duration &period) override;
+  std::string left_joint_;
+  std::string right_joint_;
 
-
-    private:
-        std::shared_ptr<MotorDriver> driver_;
-        std::string port_;
-        int baud_rate_;
-        double ticks_per_rev_;
-        double max_rpm_;
-
-        // 4 Wheels: 0=FL, 1=FR, 2=RL, 3=RR
-        std::vector<double> hw_commands_;
-        std::vector<double> hw_positions_;
-        std::vector<double> hw_velocities_;
-        std::vector<long> last_encoder_ticks_;
-
-
-        speed_t get_baud_macro(int baud_rate) {
-            switch (baud_rate) {
-                case 9600:   return B9600;
-                case 19200:  return B19200;
-                case 38400:  return B38400;
-                case 57600:  return B57600;
-                case 115200: return B115200;
-                case 230400: return B230400;
-                case 460800: return B460800;
-                case 921600: return B921600;
-                default:     return B115200; // Provide a sensible default fallback
-            }
-        }
-
+  std::chrono::steady_clock::time_point last_rx_;
 };
 
-} // namespace car_base_hardware
+}  // namespace car_base_hardware

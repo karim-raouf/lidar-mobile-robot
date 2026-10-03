@@ -1,154 +1,180 @@
 #include "car_robot_hardware/car_base_hardware_interface.hpp"
-#include <cmath>
 
+#include <algorithm>
+#include <optional>
+#include <stdexcept>
 
-namespace car_base_hardware {
+#include "hardware_interface/types/hardware_interface_type_values.hpp"
+#include "rclcpp/rclcpp.hpp"
 
-hardware_interface::CallbackReturn 
-    CarBaseHardwareInterface::on_init(const hardware_interface::HardwareComponentInterfaceParams &params)
+namespace car_base_hardware
 {
-    if (hardware_interface::SystemInterface::on_init(params) !=
-        hardware_interface::CallbackReturn::SUCCESS)
+
+using hardware_interface::CallbackReturn;
+using hardware_interface::HW_IF_POSITION;
+using hardware_interface::HW_IF_VELOCITY;
+using hardware_interface::return_type;
+
+namespace
+{
+
+std::optional<std::string> findParam(
+  const hardware_interface::HardwareInfo & info, const std::string & name)
+{
+  const auto it = info.hardware_parameters.find(name);
+  if (it == info.hardware_parameters.end()) {
+    return std::nullopt;
+  }
+  return it->second;
+}
+
+bool hasInterface(
+  const std::vector<hardware_interface::InterfaceInfo> & interfaces, const std::string & name)
+{
+  return std::ranges::any_of(interfaces, [&](const auto & i) {return i.name == name;});
+}
+
+}  // namespace
+
+CallbackReturn CarBaseHardwareInterface::on_init(
+  const hardware_interface::HardwareComponentInterfaceParams & params)
+{
+  if (SystemInterface::on_init(params) != CallbackReturn::SUCCESS) {
+    return CallbackReturn::ERROR;
+  }
+
+  if (info_.joints.size() != 2) {
+    RCLCPP_FATAL(
+      get_logger(), "Expected exactly 2 joints (left, right), got %zu", info_.joints.size());
+    return CallbackReturn::ERROR;
+  }
+
+  for (const auto & joint : info_.joints) {
+    if (joint.command_interfaces.size() != 1 ||
+      joint.command_interfaces[0].name != HW_IF_VELOCITY ||
+      !hasInterface(joint.state_interfaces, HW_IF_POSITION) ||
+      !hasInterface(joint.state_interfaces, HW_IF_VELOCITY))
     {
-        return hardware_interface::CallbackReturn::ERROR;
+      RCLCPP_FATAL(
+        get_logger(),
+        "Joint '%s' needs one velocity command interface and position + velocity state "
+        "interfaces", joint.name.c_str());
+      return CallbackReturn::ERROR;
+    }
+  }
+  left_joint_ = info_.joints[SerialDriver::kLeft].name;
+  right_joint_ = info_.joints[SerialDriver::kRight].name;
+
+  try {
+    port_ = findParam(info_, "serial_port").value_or(port_);
+    if (const auto v = findParam(info_, "baud_rate")) {baud_rate_ = std::stoi(*v);}
+    if (const auto v = findParam(info_, "timeout_ms")) {
+      timeout_ = std::chrono::milliseconds{std::stoi(*v)};
+    }
+    if (const auto v = findParam(info_, "startup_delay_ms")) {
+      startup_delay_ = std::chrono::milliseconds{std::stoi(*v)};
     }
 
-    port_ = info_.hardware_parameters.count("serial_port") ? info_.hardware_parameters.at("serial_port") : "/dev/ttyUSB0";
-    baud_rate_ = info_.hardware_parameters.count("baud_rate") ? std::stod(info_.hardware_parameters.at("baud_rate")) : 115200;
-    ticks_per_rev_ = info_.hardware_parameters.count("ticks_per_rev") ? std::stod(info_.hardware_parameters.at("ticks_per_rev")) : 20;
-    max_rpm_ = info_.hardware_parameters.count("max_rpm") ? std::stod(info_.hardware_parameters.at("max_rpm")) : 200;
+    const auto kp = findParam(info_, "kp");
+    const auto ki = findParam(info_, "ki");
+    const auto kd = findParam(info_, "kd");
+    send_pid_ = kp && ki && kd;
+    if (send_pid_) {
+      kp_ = std::stod(*kp);
+      ki_ = std::stod(*ki);
+      kd_ = std::stod(*kd);
+    }
+  } catch (const std::exception & e) {
+    RCLCPP_FATAL(get_logger(), "Invalid hardware parameter: %s", e.what());
+    return CallbackReturn::ERROR;
+  }
 
-
-    hw_commands_.resize(info_.joints.size(), 0.0);
-    hw_velocities_.resize(info_.joints.size(), 0.0);
-    hw_positions_.resize(info_.joints.size(), 0.0);
-    last_encoder_ticks_.resize(info_.joints.size(), 0.0);
-
-
-    driver_ = std::make_shared<MotorDriver>();
-
-    return hardware_interface::CallbackReturn::SUCCESS;
+  return CallbackReturn::SUCCESS;
 }
 
-std::vector<hardware_interface::StateInterface> 
-    CarBaseHardwareInterface::export_state_interfaces()
+CallbackReturn CarBaseHardwareInterface::on_configure(const rclcpp_lifecycle::State &)
 {
-    std::vector<hardware_interface::StateInterface> state_interfaces_;
-    for (size_t i = 0; i < info_.joints.size(); ++i) {
-        state_interfaces_.emplace_back(info_.joints[i].name, hardware_interface::HW_IF_POSITION, &hw_positions_[i]);
-        state_interfaces_.emplace_back(info_.joints[i].name, hardware_interface::HW_IF_VELOCITY, &hw_velocities_[i]);
-    }
-    return state_interfaces_;
+  if (!driver_.open(port_, baud_rate_, startup_delay_)) {
+    return CallbackReturn::ERROR;
+  }
+
+  for (const auto & joint : {left_joint_, right_joint_}) {
+    set_state(joint + "/" + HW_IF_POSITION, 0.0);
+    set_state(joint + "/" + HW_IF_VELOCITY, 0.0);
+    set_command(joint + "/" + HW_IF_VELOCITY, 0.0);
+  }
+  return CallbackReturn::SUCCESS;
 }
 
-
-std::vector<hardware_interface::CommandInterface> 
-    CarBaseHardwareInterface::export_command_interfaces()
+CallbackReturn CarBaseHardwareInterface::on_cleanup(const rclcpp_lifecycle::State &)
 {
-    std::vector<hardware_interface::CommandInterface> command_interfaces_;
-    for (size_t i = 0; i < info_.joints.size(); ++i) {
-        command_interfaces_.emplace_back(info_.joints[i].name, hardware_interface::HW_IF_VELOCITY, &hw_commands_[i]);
-    }
-    return command_interfaces_;
-} 
-        
-
-
-hardware_interface::CallbackReturn 
-    CarBaseHardwareInterface::on_activate(const rclcpp_lifecycle::State &previous_state)
-{
-    (void) previous_state;
-    if (!driver_->openPort(port_, get_baud_macro(baud_rate_)))
-    {
-        RCLCPP_ERROR(rclcpp::get_logger("ESP32HardwareInterface"),
-                 "Failed to open serial port: %s", port_.c_str());
-        return hardware_interface::CallbackReturn::FAILURE;
-    }
-
-    RCLCPP_INFO(rclcpp::get_logger("ESP32HardwareInterface"), "Connected to ESP32 on %s", port_.c_str());
-    return hardware_interface::CallbackReturn::SUCCESS;
+  driver_.close();
+  return CallbackReturn::SUCCESS;
 }
 
-
-hardware_interface::CallbackReturn 
-    CarBaseHardwareInterface::on_deactivate(const rclcpp_lifecycle::State &previous_state)
+CallbackReturn CarBaseHardwareInterface::on_activate(const rclcpp_lifecycle::State &)
 {
-    (void) previous_state;
+  set_command(left_joint_ + "/" + HW_IF_VELOCITY, 0.0);
+  set_command(right_joint_ + "/" + HW_IF_VELOCITY, 0.0);
 
-    driver_->writeString("m 0 0 0 0\n");
-    driver_->closePort();
+  if (!driver_.sendVelocity(0.0, 0.0)) {
+    return CallbackReturn::ERROR;
+  }
+  if (send_pid_ && !driver_.sendPid(kp_, ki_, kd_)) {
+    return CallbackReturn::ERROR;
+  }
 
-    return hardware_interface::CallbackReturn::SUCCESS;
+  last_rx_ = std::chrono::steady_clock::now();
+  RCLCPP_INFO(get_logger(), "Connected to ESP32 on %s", port_.c_str());
+  return CallbackReturn::SUCCESS;
 }
 
-
-
-hardware_interface::return_type
-    CarBaseHardwareInterface::read(const rclcpp::Time &time, const rclcpp::Duration &period)
+CallbackReturn CarBaseHardwareInterface::on_deactivate(const rclcpp_lifecycle::State &)
 {
-    (void) time;
-    (void) period;
-    if (!driver_->isConnected()) {return hardware_interface::return_type::ERROR;}
-
-    // Drain incoming buffer and get the latest line starting with 'e'
-    std::string line;
-    std::string latest_data = "";
-    while (!(line = driver_->readLine()).empty()) {
-        if (line[0] == 'e') latest_data = line;
-    }
-
-    if (!latest_data.empty()) {
-        long fl = 0, fr = 0, rl = 0, rr = 0;
-        if (sscanf(latest_data.c_str(), "e %ld %ld %ld %ld", &fl, &fr, &rl, &rr) == 4) {
-        long current_ticks[4] = {fl, fr, rl, rr};
-        double dt = period.seconds();
-
-        for (int i = 0; i < 4; ++i) {
-            long delta_ticks = current_ticks[i] - last_encoder_ticks_[i];
-            last_encoder_ticks_[i] = current_ticks[i];
-
-            // rad = (ticks / ticks_per_rev) * 2 * PI
-            double delta_rad = (static_cast<double>(delta_ticks) / ticks_per_rev_) * (2.0 * M_PI);
-            hw_positions_[i] += delta_rad;
-            if (dt > 0.0) {
-            hw_velocities_[i] = delta_rad / dt;
-            }
-        }
-        }
-    }
-
-    return hardware_interface::return_type::OK;
+  driver_.sendVelocity(0.0, 0.0);  // halt the motors before handing back control
+  return CallbackReturn::SUCCESS;
 }
 
-hardware_interface::return_type
-    CarBaseHardwareInterface::write(const rclcpp::Time &time, const rclcpp::Duration &period)
+return_type CarBaseHardwareInterface::read(const rclcpp::Time &, const rclcpp::Duration &)
 {
-    (void) time;
-    (void) period;
+  const auto received = driver_.poll();
+  if (!received) {
+    return return_type::ERROR;
+  }
 
-    if (!driver_->isConnected()) {return hardware_interface::return_type::ERROR;}
+  const auto now = std::chrono::steady_clock::now();
+  if (*received > 0) {
+    last_rx_ = now;
+  } else if (now - last_rx_ > timeout_) {
+    RCLCPP_ERROR(
+      get_logger(), "No state from ESP32 for more than %lld ms",
+      static_cast<long long>(timeout_.count()));
+    return return_type::ERROR;
+  }
 
-    // Map requested angular velocities (rad/s) to PWM duty range (-255 to 255)
-    // Max rad/s = (max_rpm / 60) * 2 * PI
-    double max_rad_s = (max_rpm_ / 60.0) * (2.0 * M_PI);
-    int pwm[4] = {0, 0, 0, 0};
+  const auto & wheels = driver_.wheels();
+  set_state(left_joint_ + "/" + HW_IF_POSITION, wheels[SerialDriver::kLeft].position);
+  set_state(left_joint_ + "/" + HW_IF_VELOCITY, wheels[SerialDriver::kLeft].velocity);
+  set_state(right_joint_ + "/" + HW_IF_POSITION, wheels[SerialDriver::kRight].position);
+  set_state(right_joint_ + "/" + HW_IF_VELOCITY, wheels[SerialDriver::kRight].velocity);
 
-    for (int i = 0; i < 4; ++i) {
-        double ratio = hw_commands_[i] / max_rad_s;
-        pwm[i] = static_cast<int>(std::clamp(ratio * 255.0, -255.0, 255.0));
-    }
-
-    char buffer[64];
-    // Format: "m <FL> <FR> <RL> <RR>\n"
-    snprintf(buffer, sizeof(buffer), "m %d %d %d %d\n", pwm[0], pwm[1], pwm[2], pwm[3]);
-    driver_->writeString(buffer);
-
-    return hardware_interface::return_type::OK;
+  return return_type::OK;
 }
 
+return_type CarBaseHardwareInterface::write(const rclcpp::Time &, const rclcpp::Duration &)
+{
+  const auto left = get_command<double>(left_joint_ + "/" + HW_IF_VELOCITY);
+  const auto right = get_command<double>(right_joint_ + "/" + HW_IF_VELOCITY);
 
-} // namespace car_base_hardware
+  RCLCPP_DEBUG_THROTTLE(
+    get_logger(), *get_clock(), 1000, "Command [rad/s] L: %.3f R: %.3f", left, right);
+
+  return driver_.sendVelocity(left, right) ? return_type::OK : return_type::ERROR;
+}
+
+}  // namespace car_base_hardware
 
 #include "pluginlib/class_list_macros.hpp"
 
-PLUGINLIB_EXPORT_CLASS(car_base_hardware::CarBaseHardwareInterface, hardware_interface::SystemInterface)
+PLUGINLIB_EXPORT_CLASS(
+  car_base_hardware::CarBaseHardwareInterface, hardware_interface::SystemInterface)

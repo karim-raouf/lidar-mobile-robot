@@ -3,9 +3,9 @@
 <package format="3">
   <name>car_robot_hardware</name>
   <version>0.0.0</version>
-  <description>TODO: Package description</description>
-  <maintainer email="karim@todo.todo">karim</maintainer>
-  <license>TODO: License declaration</license>
+  <description>ros2_control hardware interface for the 2-wheel differential base driven by an ESP32 over serial</description>
+  <maintainer email="RAO_MOS@yahoo.com">karim</maintainer>
+  <license>Apache-2.0</license>
 
   <buildtool_depend>ament_cmake</buildtool_depend>
 

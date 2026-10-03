@@ -12,20 +12,42 @@
         <origin xyz="${base_length / 4.0} 0 ${base_height}" rpy="0 0 0" />
     </joint> -->
 
-    <!-- <xacro:macro name="wheel_gazebo" params="prefix">  -->
-        <!-- <gazebo reference="${prefix}_wheel_link"> -->
-            <!-- <mu1>1.0</mu1> -->
-            <!-- <mu2>0.2</mu2>  Lower lateral friction allows skid-steering turns -->
-            <!-- <kp>1000000.0</kp> -->
-            <!-- <kd>10.0</kd> -->
-            <!-- <minDepth>0.001</minDepth> -->
-        <!-- </gazebo> -->
-    <!-- </xacro:macro> -->
+    <!-- Base link -->
+    <gazebo reference="base_link">
+        <material>Gazebo/Blue</material>
+    </gazebo>
 
-    <!-- <xacro:wheel_gazebo prefix="fl" /> -->
-    <!-- <xacro:wheel_gazebo prefix="fr" /> -->
-    <!-- <xacro:wheel_gazebo prefix="rl" /> -->
-    <!-- <xacro:wheel_gazebo prefix="rr" /> -->
+    <!-- Drive wheels: high friction for traction -->
+    <xacro:macro name="wheel_gazebo" params="prefix">
+        <gazebo reference="${prefix}_wheel_link">
+            <mu1>1.0</mu1>
+            <mu2>1.0</mu2>
+            <kp>1000000.0</kp>
+            <kd>100.0</kd>
+            <minDepth>0.001</minDepth>
+            <material>Gazebo/Grey</material>
+        </gazebo>
+    </xacro:macro>
+
+    <xacro:wheel_gazebo prefix="left" />
+    <xacro:wheel_gazebo prefix="right" />
+
+    <!-- Caster wheels: near-zero friction so they slide freely -->
+    <xacro:macro name="caster_wheel_gazebo" params="prefix">
+        <gazebo reference="${prefix}_caster_wheel_link">
+            <mu1>0.001</mu1>
+            <mu2>0.001</mu2>
+            <kp>1000000.0</kp>
+            <kd>100.0</kd>
+            <minDepth>0.001</minDepth>
+            <material>Gazebo/Grey</material>
+        </gazebo>
+    </xacro:macro>
+
+    <xacro:caster_wheel_gazebo prefix="fl" />
+    <xacro:caster_wheel_gazebo prefix="fr" />
+    <xacro:caster_wheel_gazebo prefix="rl" />
+    <xacro:caster_wheel_gazebo prefix="rr" />
 
 
     <joint name="base_lidar_joint" type="fixed">
@@ -39,25 +61,13 @@
         <hardware>
             <plugin>gz_ros2_control/GazeboSimSystem</plugin>
         </hardware>
-        <joint name="base_fl_wheel_joint">
+        <joint name="base_left_wheel_joint">
             <command_interface name="velocity" />
             <state_interface name="velocity" />
             <state_interface name="position" />
         </joint>
 
-        <joint name="base_fr_wheel_joint">
-            <command_interface name="velocity" />
-            <state_interface name="velocity" />
-            <state_interface name="position" />
-        </joint>
-
-        <joint name="base_rl_wheel_joint">
-            <command_interface name="velocity" />
-            <state_interface name="velocity" />
-            <state_interface name="position" />
-        </joint>
-
-        <joint name="base_rr_wheel_joint">
+        <joint name="base_right_wheel_joint">
             <command_interface name="velocity" />
             <state_interface name="velocity" />
             <state_interface name="position" />

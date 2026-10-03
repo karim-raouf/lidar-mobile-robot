@@ -18,6 +18,13 @@
     <node pkg="controller_manager" exec="spawner" args="diff_drive_controller" />
     <!-- <node pkg="controller_manager" exec="spawner" args="arm_joints_controller" /> -->
 
+    <!-- LiDAR: launched directly (not via ydlidar_launch.py) because that file also publishes
+         a base_link -> laser_frame TF that conflicts with lidar_link from the URDF. -->
+    <!-- <node pkg="ydlidar_ros2_driver" exec="ydlidar_ros2_driver_node" name="ydlidar_ros2_driver_node"
+          output="screen">
+        <param from="$(find-pkg-share ydlidar_ros2_driver)/params/ydlidar.yaml" />
+    </node> -->
+
     <node pkg="rviz2" exec="rviz2" output="screen" args="-d $(var rviz_config_path)"/>
 
 </launch>

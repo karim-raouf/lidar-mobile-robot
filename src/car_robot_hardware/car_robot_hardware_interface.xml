@@ -3,7 +3,7 @@
            type="car_base_hardware::CarBaseHardwareInterface"
            base_class_type="hardware_interface::SystemInterface" >
         <description>
-            Hardware Interface for 4 DC motors with their encoders
+            ros2_control hardware interface for the 2-wheel differential base (ESP32 over serial)
         </description>
     </class>
 </library>
