@@ -112,13 +112,13 @@
     <joint name="base_front_caster_wheel_joint" type="fixed">
         <parent link="base_link"/>
         <child link="front_caster_wheel_link"/>
-        <origin xyz="${(base_length / 2.0) * 0.7} 0 0" rpy="0 0 0"/>
+        <origin xyz="${(base_length / 2.0) * 0.8} 0 0" rpy="0 0 0"/>
     </joint>
 
     <joint name="base_back_caster_wheel_joint" type="fixed">
         <parent link="base_link"/>
         <child link="back_caster_wheel_link"/>
-        <origin xyz="${-(base_length / 2.0)} 0 0" rpy="0 0 0"/>
+        <origin xyz="${-(base_length / 2.0) * 0.6} 0 0" rpy="0 0 0"/>
     </joint>
 
 
