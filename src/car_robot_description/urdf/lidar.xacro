@@ -3,7 +3,7 @@
 
     <xacro:property name="lidar_length" value="0.1" />
     <xacro:property name="lidar_width" value="0.06" />
-    <xacro:property name="lidar_height" value="0.05" />
+    <xacro:property name="lidar_height" value="0.045" />
 
     <link name="lidar_link">
         <visual>

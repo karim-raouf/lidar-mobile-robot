@@ -62,8 +62,8 @@ constexpr uint32_t PUBLISH_PERIOD_MS = 20;      // 50 Hz state stream
 constexpr uint32_t CMD_TIMEOUT_MS    = 500;     // stop motors if no "V" command arrives
 constexpr float    VEL_FILTER_ALPHA  = 0.25f;   // 0..1, lower = smoother but laggier
 constexpr float    MAX_WHEEL_RAD_S   = 16.0f;   // no-load speed at your supply voltage;
-                                                // used for feed-forward and command clamp
-constexpr bool     USE_FEEDFORWARD   = true;
+constexpr bool     USE_FEEDFORWARD   = true;    // used for feed-forward and command clamp
+
 
 // ---- PWM / L298N ----
 constexpr uint32_t PWM_FREQ_HZ = 10000;

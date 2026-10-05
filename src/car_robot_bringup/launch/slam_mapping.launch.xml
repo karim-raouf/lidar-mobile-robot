@@ -1,0 +1,18 @@
+<launch>
+
+    <arg name="use_sim_time" default="false"/>
+    <arg name="slam_params_file" 
+       default="$(find-pkg-share car_robot_bringup)/config/mapper_params_online_async.yaml" 
+       description="Path to the custom slam_toolbox parameter file" />
+
+    <let name="rviz_config_path"
+         value="$(find-pkg-share car_robot_description)/rviz/mapping.rviz" />
+
+    <include file="$(find-pkg-share slam_toolbox)/launch/online_async_launch.py">
+        <arg name="use_sim_time" value="$(var use_sim_time)" />
+        <arg name="slam_params_file" value="$(var slam_params_file)" />
+    </include>
+
+    <node pkg="rviz2" exec="rviz2" output="screen" args="-d $(var rviz_config_path)"/>
+
+</launch>
