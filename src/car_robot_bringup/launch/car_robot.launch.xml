@@ -25,6 +25,6 @@
         <param from="$(find-pkg-share ydlidar_ros2_driver)/params/ydlidar.yaml" />
     </node> -->
 
-    <node pkg="rviz2" exec="rviz2" output="screen" args="-d $(var rviz_config_path)"/>
+   <!--  <node pkg="rviz2" exec="rviz2" output="screen" args="-d $(var rviz_config_path)"/> -->
 
 </launch>
