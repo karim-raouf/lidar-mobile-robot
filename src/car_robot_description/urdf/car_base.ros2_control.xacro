@@ -1,3 +1,4 @@
+
 <?xml version="1.0"?>
 <robot xmlns:xacro="http://ros.org/wiki/xacro">
 
@@ -5,7 +6,7 @@
         <hardware>
             <!-- <plugin>mock_components/GenericSystem</plugin> -->
             <plugin>car_base_hardware/CarBaseHardwareInterface</plugin>
-            <param name="serial_port">/dev/ttyUSB0</param>
+            <param name="serial_port">/dev/esp32</param>
             <param name="baud_rate">115200</param>
             <param name="timeout_ms">500</param>
             <param name="startup_delay_ms">2000</param>
