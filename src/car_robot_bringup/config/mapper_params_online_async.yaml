@@ -7,7 +7,7 @@ slam_toolbox:
     ceres_preconditioner: SCHUR_JACOBI
     ceres_trust_strategy: LEVENBERG_MARQUARDT
     ceres_dogleg_type: TRADITIONAL_DOGLEG
-    ceres_loss_function: None
+    ceres_loss_function: HuberLoss               # CHANGED: Rejects laser range outliers and reflective artifacts
 
     # ROS Parameters
     odom_frame: odom
@@ -15,40 +15,32 @@ slam_toolbox:
     base_frame: base_footprint
     scan_topic: /scan
     use_map_saver: true
-    mode: mapping #localization
-
-    # if you'd like to immediately start continuing a map at a given pose
-    # or at the dock, but they are mutually exclusive, if pose is given
-    # will use pose
-    #map_file_name: test_steve
-    # map_start_pose: [0.0, 0.0, 0.0]
-    #map_start_at_dock: true
+    mode: mapping
 
     debug_logging: false
     throttle_scans: 1
-    transform_publish_period: 0.02 #if 0 never publishes odometry
-    map_update_interval: 5.0
-    resolution: 0.05
+    transform_publish_period: 0.02
+    map_update_interval: 0.4                     # CHANGED: Renders the map in RViz ~2.5x per second
+    resolution: 0.035                            # CHANGED: Sharper 3.5cm grid cells (balanced for X2 beam spread)
     restamp_tf: false
-    min_laser_range: 0.0 #for rastering images
-    max_laser_range: 20.0 #for rastering images
-    minimum_time_interval: 0.5
+    min_laser_range: 0.15                        # CHANGED: Ignores blind-zone noise inside the X2's 0.12m dead zone
+    max_laser_range: 6.5                         # CHANGED: Drops noisy returns past 6.5m (X2 max rated is 8.0m)
+    minimum_time_interval: 0.1                   # CHANGED: Accepts scans up to 10 Hz (matches X2's 5-8 Hz spin rate)
     transform_timeout: 0.2
     tf_buffer_duration: 30.0
-    stack_size_to_use: 40000000 #// program needs a larger stack size to serialize large maps
+    stack_size_to_use: 40000000
     enable_interactive_mode: true
 
     # General Parameters
     use_scan_matching: true
     use_scan_barycenter: true
-    minimum_travel_distance: 0.15
-    minimum_travel_heading: 0.17
-    check_min_dist_and_heading_precisely: false
-    scan_buffer_size: 10
-    scan_buffer_maximum_scan_distance: 10.0
-    link_match_minimum_response_fine: 0.1  
-    link_scan_maximum_distance: 1.5
-    loop_search_maximum_distance: 3.0
+    minimum_travel_distance: 0.08                # CHANGED: Triggers a new graph node every 8 cm
+    minimum_travel_heading: 0.10                 # CHANGED: Triggers a node every ~5.7 deg to eliminate turn drift
+    check_min_dist_and_heading_precisely: true   # CHANGED: Strict evaluation on every incoming scan
+    scan_buffer_size: 15                         # CHANGED: Retains more scans in local memory for matching
+    scan_buffer_maximum_scan_distance: 6.5       # CHANGED: Matched to valid X2 working distance
+    link_match_minimum_response_fine: 0.50       # CHANGED: Raised from 0.1 to reject false scan matches
+    link_scan_maximum_distance: 2.0              # CHANGED: Matches nodes up to 2m apart for tight link closures
     do_loop_closing: true 
     loop_match_minimum_chain_size: 10           
     loop_match_maximum_variance_coarse: 3.0  
@@ -56,7 +48,7 @@ slam_toolbox:
     loop_match_minimum_response_fine: 0.45
 
     # Correlation Parameters - Correlation Parameters
-    correlation_search_space_dimension: 0.5
+    correlation_search_space_dimension: 0.6      # CHANGED: Expanded to give room for pure odom slip
     correlation_search_space_resolution: 0.01
     correlation_search_space_smear_deviation: 0.1 
 
@@ -70,10 +62,10 @@ slam_toolbox:
     angle_variance_penalty: 0.3  
 
     fine_search_angle_offset: 0.00349     
-    coarse_search_angle_offset: 0.523   
-    coarse_angle_resolution: 0.0349      
-    minimum_angle_penalty: 0.9
-    minimum_distance_penalty: 0.5
+    coarse_search_angle_offset: 0.523            # +/- 30-degree search space around odometry prior
+    coarse_angle_resolution: 0.0174              # CHANGED: Evaluates heading matches at 1.0 deg steps (was ~2.0 deg)
+    minimum_angle_penalty: 0.3                   # CHANGED: Lowered from 0.9 to trust laser over drifting odom yaw
+    minimum_distance_penalty: 0.3                # CHANGED: Lowered from 0.5 to prevent locking to slipping odom
     use_response_expansion: true
     min_pass_through: 2
     occupancy_threshold: 0.1
