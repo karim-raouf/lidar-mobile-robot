@@ -16,7 +16,8 @@
 
     <node pkg="controller_manager" exec="spawner" args="joint_state_broadcaster" />
     <node pkg="controller_manager" exec="spawner"
-      args="diff_drive_controller --controller-ros-args --remap &quot;~/odom:=/odom&quot;" />
+      args="diff_drive_controller --controller-ros-args &quot;-r ~/odom:=/odom&quot;" />
+
     <!-- <node pkg="controller_manager" exec="spawner" args="arm_joints_controller" /> -->
 
     <!-- LiDAR: launched directly (not via ydlidar_launch.py) because that file also publishes
