@@ -4,6 +4,7 @@ controller_manager:
 
     joint_state_broadcaster:
       type: joint_state_broadcaster/JointStateBroadcaster
+      update_rate: 50
       
 
     diff_drive_controller:
@@ -31,7 +32,7 @@ diff_drive_controller:
 
     enable_odom_tf: true
 
-    publish_rate: 100.0
+    publish_rate: 50.0
 
     linear.x.min_velocity: -0.4
     linear.x.max_velocity: 0.4
