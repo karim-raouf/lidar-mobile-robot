@@ -1,0 +1,19 @@
+<launch>
+    <arg name="use_sim_time" default="false" description="Use simulation (Gazebo) clock if true"/>
+    <arg name="map" default="$(find-pkg-share car_robot_bringup)/maps/coridor_map.yaml" description="Full path to the map yaml file"/>
+    <arg name="params_file" default="$(find-pkg-share my_robot_bringup)/config/nav2_params.yaml" description="Full path to the ROS 2 parameters file"/>
+    <arg name="autostart" default="true" description="Automatically startup lifecycle nodes"/>
+
+    <!-- Include standard Nav2 bringup pipeline -->
+    <include file="$(find-pkg-share nav2_bringup)/launch/bringup_launch.py">
+        <arg name="use_sim_time" value="$(var use_sim_time)"/>
+        <arg name="map" value="$(var map)"/>
+        <arg name="params_file" value="$(var params_file)"/>
+        <arg name="autostart" value="$(var autostart)"/>
+    </include>
+
+    <include file="$(find-pkg-share nav2_bringup)/launch/rviz_launch.py">
+        <arg name="use_sim_time" value="$(var use_sim_time)"/>
+    </include>
+
+</launch>
