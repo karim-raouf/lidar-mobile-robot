@@ -152,10 +152,10 @@ controller_server:
       CostCritic:
         enabled: true
         cost_power: 1
-        cost_weight: 3.81
+        cost_weight: 5.0
         near_collision_cost: 253
         critical_cost: 300.0
-        consider_footprint: false
+        consider_footprint: true
         collision_cost: 1000000.0
         near_goal_distance: 1.0
         trajectory_point_step: 2
@@ -202,7 +202,7 @@ local_costmap:
       plugins: ["voxel_layer", "inflation_layer"]
       inflation_layer:
         plugin: "nav2_costmap_2d::InflationLayer"
-        cost_scaling_factor: 3.0
+        cost_scaling_factor: 2.5
         inflation_radius: 0.70
       voxel_layer:
         plugin: "nav2_costmap_2d::VoxelLayer"
@@ -259,7 +259,7 @@ global_costmap:
         map_subscribe_transient_local: True
       inflation_layer:
         plugin: "nav2_costmap_2d::InflationLayer"
-        cost_scaling_factor: 3.0
+        cost_scaling_factor: 2.5
         inflation_radius: 0.7
       always_send_full_costmap: True
 
@@ -368,8 +368,8 @@ velocity_smoother:
     feedback: "OPEN_LOOP"
     max_velocity: [0.4, 0.0, 1.0]
     min_velocity: [-0.4, 0.0, -1.0]
-    max_accel: [0.3, 0.0, 0.75]
-    max_decel: [-0.3, 0.0, -0.75]
+    max_accel: [0.3, 0.0, 0.5]
+    max_decel: [-0.3, 0.0, -0.5]
     odom_topic: "odom"
     odom_duration: 0.1
     deadband_velocity: [0.0, 0.0, 0.0]
