@@ -5,15 +5,12 @@
     <arg name="autostart" default="true" description="Automatically startup lifecycle nodes"/>
 
     <!-- Include standard Nav2 bringup pipeline -->
-    <group>
-        <set_remap from="/cmd_vel" to="/diff_drive_controller/cmd_vel"/>
-        <include file="$(find-pkg-share nav2_bringup)/launch/bringup_launch.py">
-            <arg name="use_sim_time" value="$(var use_sim_time)"/>
-            <arg name="map" value="$(var map)"/>
-            <arg name="params_file" value="$(var params_file)"/>
-            <arg name="autostart" value="$(var autostart)"/>
-        </include>
-    </group>
+    <include file="$(find-pkg-share nav2_bringup)/launch/bringup_launch.py">
+        <arg name="use_sim_time" value="$(var use_sim_time)"/>
+        <arg name="map" value="$(var map)"/>
+        <arg name="params_file" value="$(var params_file)"/>
+        <arg name="autostart" value="$(var autostart)"/>
+    </include>
 
 
     <include file="$(find-pkg-share nav2_bringup)/launch/rviz_launch.py">
