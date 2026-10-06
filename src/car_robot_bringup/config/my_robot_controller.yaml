@@ -40,10 +40,10 @@ diff_drive_controller:
     linear.x.min_acceleration: -0.4
     linear.x.max_acceleration: 0.4
 
-    angular.z.min_velocity: -1.5
-    angular.z.max_velocity: 1.5
-    angular.z.min_acceleration: -1.5
-    angular.z.max_acceleration: 1.5
+    angular.z.min_velocity: -1.0
+    angular.z.max_velocity: 1.0
+    angular.z.min_acceleration: -0.75
+    angular.z.max_acceleration: 00.75
   
 # arm_joints_controller:
 #   ros__parameters:
