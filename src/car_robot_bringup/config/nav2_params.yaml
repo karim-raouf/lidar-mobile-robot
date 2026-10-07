@@ -112,7 +112,7 @@ controller_server:
       vx_max: 0.4
       vx_min: -0.4
       vy_max: 0.5
-      wz_max: 0.35
+      wz_max: 0.3
       iteration_count: 1
       prune_distance: 1.7
       transform_tolerance: 0.3
@@ -321,7 +321,7 @@ behavior_server:
     robot_base_frame: base_footprint
     transform_tolerance: 0.1
     simulate_ahead_time: 2.0
-    max_rotational_vel: 0.35
+    max_rotational_vel: 0.3
     min_rotational_vel: 0.2
     rotational_acc_lim: 4.0
 
@@ -366,8 +366,8 @@ velocity_smoother:
     stamp_smoothed_velocity_with_smoothing_time: True
     scale_velocities: False
     feedback: "OPEN_LOOP"
-    max_velocity: [0.4, 0.0, 0.35]
-    min_velocity: [-0.4, 0.0, -0.35]
+    max_velocity: [0.4, 0.0, 0.3]
+    min_velocity: [-0.4, 0.0, -0.3]
     max_accel: [0.3, 0.0, 4.0]
     max_decel: [-0.3, 0.0, -4.0]
     odom_topic: "odom"
