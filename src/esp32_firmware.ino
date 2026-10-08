@@ -70,7 +70,7 @@ constexpr bool     USE_FEEDFORWARD   = true;
 constexpr uint32_t PWM_FREQ_HZ = 1000;
 constexpr uint8_t  PWM_BITS    = 10;
 constexpr uint32_t PWM_MAX     = (1u << PWM_BITS) - 1;
-constexpr float    MIN_DUTY    = 0.20f;   // dead-band compensation (0.0-0.3), raise if motors
+constexpr float    MIN_DUTY    = 0.25f;   // dead-band compensation (0.0-0.3), raise if motors
                                          // hum without moving at low commands
 constexpr bool     BRAKE_ON_STOP = true; // true: short windings when stopped, false: coast
 
