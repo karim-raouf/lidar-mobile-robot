@@ -24,7 +24,7 @@ slam_toolbox:
     resolution: 0.035                            # CHANGED: Sharper 3.5cm grid cells (balanced for X2 beam spread)
     restamp_tf: false
     min_laser_range: 0.12                      # CHANGED: Ignores blind-zone noise inside the X2's 0.12m dead zone
-    max_laser_range: 6.5                         # CHANGED: Drops noisy returns past 6.5m (X2 max rated is 8.0m)
+    max_laser_range: 8.0                         
     minimum_time_interval: 0.1                   # CHANGED: Accepts scans up to 10 Hz (matches X2's 5-8 Hz spin rate)
     transform_timeout: 0.2
     tf_buffer_duration: 30.0
