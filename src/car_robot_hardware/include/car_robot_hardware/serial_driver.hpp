@@ -25,7 +25,7 @@ struct WheelState
  *     P <kp> <ki> <kd>               set velocity PID gains
  *     R                              reset encoder counters
  *   ESP32 -> Host
- *     S <pos_l> <pos_r> <vel_l> <vel_r>   state, streamed at ~50 Hz (rad, rad, rad/s, rad/s)
+ *     S <pos_l> <pos_r> <vel_l> <vel_r>   state, streamed at ~100 Hz (rad, rad, rad/s, rad/s)
  *     anything else                       info / acks, logged at debug level
  *
  * Not thread safe; ros2_control calls read()/write() from a single thread.

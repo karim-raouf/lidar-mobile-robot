@@ -8,7 +8,7 @@
  *   in : "V <left_rad_s> <right_rad_s>"   velocity setpoints (feeds the watchdog)
  *        "P <kp> <ki> <kd>"               set PID gains
  *        "R"                              reset encoders
- *   out: "S <pos_l> <pos_r> <vel_l> <vel_r>"  every 20 ms (rad, rad, rad/s, rad/s)
+ *   out: "S <pos_l> <pos_r> <vel_l> <vel_r>"  every 10 ms (rad, rad, rad/s, rad/s)
  *
  * Do NOT print debug text on Serial other than lines starting with 'A ' (they are ignored
  * by the host), or you will pollute the link.
@@ -62,7 +62,8 @@ constexpr uint32_t PUBLISH_PERIOD_MS = 10;     // 100 Hz feedback
 constexpr uint32_t CMD_TIMEOUT_MS    = 200;     // stop motors if no "V" command arrives
 constexpr float    VEL_FILTER_ALPHA  = 0.25f;   // 0..1, lower = smoother but laggier
 constexpr float    MAX_WHEEL_RAD_S   = 20.5f;   // no-load speed at your supply voltage;
-constexpr bool     USE_FEEDFORWARD   = true;    // used for feed-forward and command clamp
+                                                // used for feed-forward and command clamp
+constexpr bool     USE_FEEDFORWARD   = true;
 
 
 // ---- PWM / L298N ----
