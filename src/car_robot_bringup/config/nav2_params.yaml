@@ -106,17 +106,17 @@ controller_server:
       ay_max: 3.0
       ay_min: -3.0
       az_max: 4.0
-      vx_std: 0.2
+      vx_std: 0.3
       vy_std: 0.2
-      wz_std: 0.3
+      wz_std: 0.5
       vx_max: 0.65
       vx_min: -0.65
       vy_max: 0.5
-      wz_max: 0.45
+      wz_max: 0.55
       iteration_count: 1
       prune_distance: 1.7
       transform_tolerance: 0.3
-      temperature: 0.3
+      temperature: 0.2
       gamma: 0.015
       motion_model: "DiffDrive"
       visualize: true
@@ -204,7 +204,7 @@ local_costmap:
       inflation_layer:
         plugin: "nav2_costmap_2d::InflationLayer"
         cost_scaling_factor: 15.0  # old: 2.5
-        inflation_radius: 0.19  # old: 0.35
+        inflation_radius: 0.17  # old: 0.35
       # Old 3D voxel configuration kept here for reference:
       # voxel_layer:
       #   plugin: "nav2_costmap_2d::VoxelLayer"
@@ -337,7 +337,7 @@ behavior_server:
     robot_base_frame: base_footprint
     transform_tolerance: 0.1
     simulate_ahead_time: 1.0
-    max_rotational_vel: 0.45
+    max_rotational_vel: 0.55
     min_rotational_vel: 0.2
     rotational_acc_lim: 4.0
 
@@ -382,8 +382,8 @@ velocity_smoother:
     stamp_smoothed_velocity_with_smoothing_time: True
     scale_velocities: False
     feedback: "OPEN_LOOP"
-    max_velocity: [0.65, 0.0, 0.45]
-    min_velocity: [-0.65, 0.0, -0.45]
+    max_velocity: [0.65, 0.0, 0.55]
+    min_velocity: [-0.65, 0.0, -0.55]
     max_accel: [0.3, 0.0, 4.0]
     max_decel: [-0.3, 0.0, -4.0]
     odom_topic: "odom"
@@ -410,7 +410,7 @@ collision_monitor:
       type: "polygon"
       action_type: "approach"
       footprint_topic: "/local_costmap/published_footprint"
-      time_before_collision: 0.6
+      time_before_collision: 0.4
       simulation_time_step: 0.1
       min_points: 6
       visualize: False
