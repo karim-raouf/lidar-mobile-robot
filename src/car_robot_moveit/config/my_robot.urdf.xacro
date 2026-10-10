@@ -1,0 +1,7 @@
+<?xml version="1.0"?>
+<robot xmlns:xacro="http://www.ros.org/wiki/xacro" name="my_robot">
+
+    <!-- Import my_robot urdf file -->
+    <xacro:include filename="$(find car_robot_description)/urdf/car_robot.urdf.xacro" />
+
+</robot>

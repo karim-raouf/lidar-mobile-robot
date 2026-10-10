@@ -1,21 +1,22 @@
 <?xml version="1.0"?>
-<robot xmlns:xacro="http://www.ros.org/wiki/xacro">
+<robot xmlns:xacro="http://www.ros.org/wiki/xacro"> # name="arm" 
+
 
     <xacro:property name="arm_base_length" value="0.1" />
     <xacro:property name="arm_base_width" value="0.1" />
     <xacro:property name="arm_base_height" value="0.025" />
 
-    <xacro:property name="arm_shoulder_radius" value="0.0125" />
-    <xacro:property name="arm_shoulder_length" value="0.025" />
+    <xacro:property name="arm_shoulder_radius" value="0.0250" />
+    <xacro:property name="arm_shoulder_length" value="0.125" />
 
-    <xacro:property name="arm_upper_arm_radius" value="0.15" />
-    <xacro:property name="arm_upper_arm_length" value="0.0125" />
+    <xacro:property name="arm_upper_arm_radius" value="0.0125" />
+    <xacro:property name="arm_upper_arm_length" value="0.15" />
 
-    <xacro:property name="arm_elbow_radius" value="0.025" />
-    <xacro:property name="arm_elbow_length" value="0.0125" />
+    <xacro:property name="arm_elbow_radius" value="0.0125" />
+    <xacro:property name="arm_elbow_length" value="0.025" />
 
-    <xacro:property name="arm_forearm_radius" value="0.125" />
-    <xacro:property name="arm_forearm_length" value="0.0125" />
+    <xacro:property name="arm_forearm_radius" value="0.0125" />
+    <xacro:property name="arm_forearm_length" value="0.125" />
 
     <xacro:property name="arm_wrist_length" value="0.025" />
     <xacro:property name="arm_wrist_width" value="0.025" />
@@ -33,8 +34,14 @@
                 <box size="${arm_base_length} ${arm_base_width} ${arm_base_height}" />
             </geometry>
             <origin xyz="0 0 ${arm_base_height / 2.0}" rpy="0 0 0" />
-            <material name="orange" />
+            <material name="grey" />
         </visual>
+        <collision>
+            <geometry>
+                <box size="${arm_base_length} ${arm_base_width} ${arm_base_height}" />
+            </geometry>
+            <origin xyz="0 0 ${arm_base_height / 2.0}" rpy="0 0 0" />
+        </collision>
     </link>
 
     <link name="arm_shoulder_link">
@@ -43,8 +50,14 @@
                 <cylinder radius="${arm_shoulder_radius}" length="${arm_shoulder_length}" />
             </geometry>
             <origin xyz="0 0 ${arm_shoulder_length / 2.0}" rpy="0 0 0" />
-            <material name="yellow" />
+            <material name="blue" />
         </visual>
+        <collision>
+            <geometry>
+                <cylinder radius="${arm_shoulder_radius}" length="${arm_shoulder_length}" />
+            </geometry>
+            <origin xyz="0 0 ${arm_shoulder_length / 2.0}" rpy="0 0 0" />
+        </collision>
     </link>
 
     <link name="arm_upper_arm_link">
@@ -53,8 +66,14 @@
                 <cylinder radius="${arm_upper_arm_radius}" length="${arm_upper_arm_length}" />
             </geometry>
             <origin xyz="0 0 ${arm_upper_arm_length / 2.0}" rpy="0 0 0" />
-            <material name="orange" />
+            <material name="grey" />
         </visual>
+        <collision>
+            <geometry>
+                <cylinder radius="${arm_upper_arm_radius}" length="${arm_upper_arm_length}" />
+            </geometry>
+            <origin xyz="0 0 ${arm_upper_arm_length / 2.0}" rpy="0 0 0" />
+        </collision>
     </link>
 
     <link name="arm_elbow_link">
@@ -63,8 +82,14 @@
                 <cylinder radius="${arm_elbow_radius}" length="${arm_elbow_length}" />
             </geometry>
             <origin xyz="0 0 ${arm_elbow_length / 2.0}" rpy="0 0 0" />
-            <material name="orange" />
+            <material name="blue" />
         </visual>
+        <collision>
+            <geometry>
+                <cylinder radius="${arm_elbow_radius}" length="${arm_elbow_length}" />
+            </geometry>
+            <origin xyz="0 0 ${arm_elbow_length / 2.0}" rpy="0 0 0" />
+        </collision>
     </link>
 
     <link name="arm_forearm_link">
@@ -73,8 +98,14 @@
                 <cylinder radius="${arm_forearm_radius}" length="${arm_forearm_length}" />
             </geometry>
             <origin xyz="0 0 ${arm_forearm_length / 2.0}" rpy="0 0 0" />
-            <material name="orange" />
+            <material name="grey" />
         </visual>
+        <collision>
+            <geometry>
+                <cylinder radius="${arm_forearm_radius}" length="${arm_forearm_length}" />
+            </geometry>
+            <origin xyz="0 0 ${arm_forearm_length / 2.0}" rpy="0 0 0" />
+        </collision>
     </link>
 
     <link name="arm_wrist_link">
@@ -83,8 +114,14 @@
                 <box size="${arm_wrist_length} ${arm_wrist_width} ${arm_wrist_height}"/>
             </geometry>
             <origin xyz="0 0 ${arm_wrist_height / 2.0}" rpy="0 0 0" />
-            <material name="orange" />
+            <material name="blue" />
         </visual>
+        <collision>
+            <geometry>
+                <box size="${arm_wrist_length} ${arm_wrist_width} ${arm_wrist_height}"/>
+            </geometry>
+            <origin xyz="0 0 ${arm_wrist_height / 2.0}" rpy="0 0 0" />
+        </collision>
     </link>
 
     <link name="arm_hand_link">
@@ -93,11 +130,17 @@
                 <box size="${arm_hand_length} ${arm_hand_width} ${arm_hand_height}"/>
             </geometry>
             <origin xyz="0 0 ${arm_hand_height / 2.0}" rpy="0 0 0" />
-            <material name="orange" />
+            <material name="grey" />
         </visual>
+        <collision>
+            <geometry>
+                <box size="${arm_hand_length} ${arm_hand_width} ${arm_hand_height}"/>
+            </geometry>
+            <origin xyz="0 0 ${arm_hand_height / 2.0}" rpy="0 0 0" />
+        </collision>
     </link>
 
-    <link name="arm_tool_link" />
+    <link name="tool0" />
 
 
 
@@ -154,9 +197,9 @@
         <dynamics friction="0.05" damping="0.1" />
     </joint>
 
-    <joint name="arm_joint7" type="fixed">
+    <joint name="hand_tool_joint" type="fixed">
         <parent link="arm_hand_link" />
-        <child link="arm_tool_link" />
+        <child link="tool0" />
         <origin xyz="0 0 ${arm_hand_height}" rpy="0 0 0" />
     </joint>
 

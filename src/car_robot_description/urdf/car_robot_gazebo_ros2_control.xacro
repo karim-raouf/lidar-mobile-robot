@@ -77,7 +77,7 @@
     <gazebo>
         <!-- Actuators & Wheel Control -->
         <plugin filename="gz_ros2_control-system" name="gz_ros2_control::GazeboSimROS2ControlPlugin">
-            <parameters>$(find car_robot_bringup)/config/my_robot_controller.yaml</parameters>
+            <parameters>$(find car_robot_bringup)/config/car_robot_controller.yaml</parameters>
         </plugin>
 
         <!-- GPU LiDAR & Camera Rendering Engine -->

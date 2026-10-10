@@ -17,6 +17,7 @@
             <geometry>
                 <box size="${lidar_length} ${lidar_width} ${lidar_height}"/>
             </geometry>
+            <origin xyz="0 0 ${lidar_height / 16}" rpy="0 0 0" />
         </collision>
         <xacro:box_inertia m="0.13" x="${lidar_length}" y="${lidar_width}" z="${lidar_height}" 
                             o_xyz="0 0 0" o_rpy="0 0 0" />

@@ -3,12 +3,14 @@
 
     <ros2_control name="CarRobotHardwareInterface" type="system">
         <hardware>
-            <!-- <plugin>mock_components/GenericSystem</plugin> -->
-            <plugin>car_base_hardware/CarBaseHardwareInterface</plugin>
+            <plugin>mock_components/GenericSystem</plugin>
+            
+            <!-- <plugin>car_base_hardware/CarBaseHardwareInterface</plugin>
             <param name="serial_port">/dev/esp32</param>
             <param name="baud_rate">115200</param>
             <param name="timeout_ms">500</param>
-            <param name="startup_delay_ms">2000</param>
+            <param name="startup_delay_ms">2000</param> -->
+
             <!-- Optional - velocity PID gains sent to the ESP32 on activation -->
             <!-- <param name="kp">1.0</param>
             <param name="ki">0.0</param>
